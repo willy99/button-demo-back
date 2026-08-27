@@ -11,7 +11,7 @@ app.get("/api/health", (_req, res) => {
   res.json({ status: "ok" });
 });
 
-app.post("/api/click", (req, res) => {
+app.post("/api/click2", (req, res) => {
   const body = req.body as { message?: unknown } | undefined;
   const text =
     typeof body?.message === "string" && body.message.trim() ? body.message.trim() : "Button clicked";
