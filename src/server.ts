@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import { getClickReply } from "./reply.js";
 
 const app = express();
 app.use(cors());
@@ -16,7 +17,7 @@ app.post("/api/click", (req, res) => {
   const text =
     typeof body?.message === "string" && body.message.trim() ? body.message.trim() : "Button clicked";
   res.json({
-    reply: `Backend received: "${text}"`,
+    reply: getClickReply(text),
     clickedAt: new Date().toISOString(),
   });
 });
