@@ -7,11 +7,13 @@ app.use(express.json());
 
 const PORT = Number(process.env.PORT) || 4001;
 
-function buildReply(text: string): string {
+type MessageClassification = "farewell" | "status-check" | "greeting" | "echo";
+
+function classifyMessage(text: string): MessageClassification {
   const normalized = text.replace(/([a-z])([A-Z])/g, "$1 $2").toLowerCase();
 
   if (/\b(bye|goodbye|farewell|hasta\s*la\s*vista|see\s*(you|ya)|later)\b/.test(normalized)) {
-    return "Cheers!";
+    return "farewell";
   }
 
   if (
@@ -19,10 +21,26 @@ function buildReply(text: string): string {
       normalized,
     )
   ) {
-    return "Fine, as usual! And you?";
+    return "status-check";
   }
 
   if (/\b(hello|hi|hey|good\s*(morning|afternoon|evening)|greetings)\b/.test(normalized)) {
+    return "greeting";
+  }
+
+  return "echo";
+}
+
+function buildReply(text: string, classification: MessageClassification): string {
+  if (classification === "farewell") {
+    return "Cheers!";
+  }
+
+  if (classification === "status-check") {
+    return "Fine, as usual! And you?";
+  }
+
+  if (classification === "greeting") {
     return "Hi, there!";
   }
 
@@ -37,8 +55,9 @@ app.post("/api/click", (req, res) => {
   const body = req.body as { message?: unknown } | undefined;
   const text =
     typeof body?.message === "string" && body.message.trim() ? body.message.trim() : "Button clicked";
+  const classification = classifyMessage(text);
   res.json({
-    reply: buildReply(text),
+    reply: buildReply(text, classification),
     clickedAt: new Date().toISOString(),
   });
 });
