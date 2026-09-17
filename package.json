@@ -7,7 +7,7 @@
     "dev": "tsx watch src/server.ts",
     "start": "tsx src/server.ts",
     "build": "tsc -p tsconfig.json",
-    "test": "node test/check.mjs"
+    "test": "node --import tsx test/check.mjs"
   },
   "dependencies": {
     "cors": "^2.8.5",
