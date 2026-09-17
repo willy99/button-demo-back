@@ -29,18 +29,32 @@ let exitCode = 1;
 try {
   await waitForHealth(`http://localhost:${PORT}/api/health`);
 
-  const res = await fetch(`http://localhost:${PORT}/api/click`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ message: "test click" }),
-  });
-  if (!res.ok) throw new Error(`click endpoint responded with HTTP ${res.status}`);
-  const data = await res.json();
-  if (!data.reply || !data.reply.includes("test click")) {
-    throw new Error(`unexpected reply: ${JSON.stringify(data)}`);
+  const cases = [
+    { message: "Hello", reply: "Hi, there!" },
+    { message: "goodMorning", reply: "Hi, there!" },
+    { message: "goodmorning!", reply: "Hi, there!" },
+    { message: "How are you doing", reply: "Fine, as usual! And you?" },
+    { message: "How is it going", reply: "Fine, as usual! And you?" },
+    { message: "How are you?", reply: "Fine, as usual! And you?" },
+    { message: "See ya", reply: "Cheers!" },
+    { message: "HastaLaVista", reply: "Cheers!" },
+    { message: "test click", reply: "test click" },
+  ];
+
+  for (const item of cases) {
+    const res = await fetch(`http://localhost:${PORT}/api/click`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: item.message }),
+    });
+    if (!res.ok) throw new Error(`click endpoint responded with HTTP ${res.status}`);
+    const data = await res.json();
+    if (data.reply !== item.reply) {
+      throw new Error(`unexpected reply for ${JSON.stringify(item.message)}: ${JSON.stringify(data)}`);
+    }
   }
 
-  console.log("ok button-demo-back self-check passed:", data.reply);
+  console.log("ok button-demo-back self-check passed");
   exitCode = 0;
 } catch (err) {
   console.error("FAILED:", err.message);
