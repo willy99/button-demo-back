@@ -9,22 +9,39 @@ const PORT = Number(process.env.PORT) || 4001;
 
 type MessageClassification = "farewell" | "status-check" | "greeting" | "echo";
 
-function classifyMessage(text: string): MessageClassification {
-  const normalized = text.replace(/([a-z])([A-Z])/g, "$1 $2").toLowerCase();
+const farewellPhrases = ["bye", "goodbye", "farewell", "hasta la vista", "see you", "see ya", "later"];
+const statusCheckPhrases = [
+  "how are you",
+  "how are u",
+  "how r you",
+  "how r u",
+  "how's it going",
+  "hows it going",
+  "what's up",
+  "whats up",
+];
+const greetingPhrases = ["hello", "hi", "hey", "good morning", "good afternoon", "good evening", "greetings"];
 
-  if (/\b(bye|goodbye|farewell|hasta\s*la\s*vista|see\s*(you|ya)|later)\b/.test(normalized)) {
+function normalizeMessage(text: string): string {
+  return text.replace(/([A-Z])/g, " $1").toLowerCase();
+}
+
+function containsPhrase(text: string, phrases: string[]): boolean {
+  return phrases.some((phrase) => text.includes(phrase));
+}
+
+function classifyMessage(text: string): MessageClassification {
+  const normalized = normalizeMessage(text);
+
+  if (containsPhrase(normalized, farewellPhrases)) {
     return "farewell";
   }
 
-  if (
-    /\b(how\s*(are|r)\s*(you|u)|how'?s?\s*it\s*going|what'?s?\s*up)\b/.test(
-      normalized,
-    )
-  ) {
+  if (containsPhrase(normalized, statusCheckPhrases)) {
     return "status-check";
   }
 
-  if (/\b(hello|hi|hey|good\s*(morning|afternoon|evening)|greetings)\b/.test(normalized)) {
+  if (containsPhrase(normalized, greetingPhrases)) {
     return "greeting";
   }
 
